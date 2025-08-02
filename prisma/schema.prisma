@@ -12,13 +12,24 @@ datasource db {
 }
 
 model Authorization {
-  id              Int      @id @default(autoincrement())
+  id              Int          @id @default(autoincrement())
   name            String
-  rfid_code       String   @unique
-  finger_print_id String?  @unique
-  flagged         Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  rfid_code       String       @unique
+  finger_print_id String?      @unique
+  flagged         Boolean      @default(false)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  Attendance      Attendance[]
 
   @@map("authorization")
+}
+
+// another table for the guys who have attended, should be linked to the authorization table
+model Attendance {
+  id              Int           @id @default(autoincrement())
+  authorizationId Int
+  attendedAt      DateTime      @default(now())
+  authorization   Authorization @relation(fields: [authorizationId], references: [id])
+
+  @@map("attendance")
 }
