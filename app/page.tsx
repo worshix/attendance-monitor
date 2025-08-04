@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Database, RefreshCw } from "lucide-react"
+import axios from "axios"
 
 interface AttendanceRecord {
   id: string
@@ -17,17 +18,19 @@ interface AttendanceRecord {
 export default function AttendanceMonitor() {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
 
-  // Mock data for attendance records
+  // Fetch attendance records from the API
   useEffect(() => {
-    const mockRecords: AttendanceRecord[] = [
-      { id: "1", name: "John Smith", time: "08:30:15", date: "2024-01-08" },
-      { id: "2", name: "Sarah Johnson", time: "08:45:22", date: "2024-01-08" },
-      { id: "3", name: "Mike Davis", time: "09:12:08", date: "2024-01-08" },
-      { id: "4", name: "Emily Brown", time: "09:25:33", date: "2024-01-08" },
-      { id: "5", name: "David Wilson", time: "09:41:17", date: "2024-01-08" },
-      { id: "6", name: "Lisa Anderson", time: "10:15:44", date: "2024-01-08" },
-    ]
-    setAttendanceRecords(mockRecords)
+    const fetchAttendanceRecords = async () => {
+      try {
+        const response = await axios.get("/api/attendance")
+        setAttendanceRecords(response.data)
+        console.log("Fetched attendance records:", response.data)
+      } catch (error) {
+        console.error("Error fetching attendance records:", error)
+      }
+    }
+
+    fetchAttendanceRecords()
   }, [])
 
   const refreshData = () => {
@@ -56,7 +59,7 @@ export default function AttendanceMonitor() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Today's Entries - {new Date().toLocaleDateString()}</CardTitle>
+            <CardTitle>Today&apos;s Entries - {new Date().toLocaleDateString()}</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>

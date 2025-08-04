@@ -5,7 +5,15 @@ import { NextResponse } from "next/server";
 export async function GET() {
 const prisma = new PrismaClient();
   try {
-    const attendanceRecords = await prisma.attendance.findMany();
+    // Fetch all attendance records from the database with authorization
+    const attendanceRecords = await prisma.attendance.findMany({
+      include: {
+        authorization:{
+          
+        }
+      }
+      
+    });
     return NextResponse.json(attendanceRecords);
   } catch (error) {
     console.error("Error fetching attendance records:", error);
