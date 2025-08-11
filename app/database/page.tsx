@@ -8,57 +8,52 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Plus, Edit, Trash2 } from "lucide-react"
 import { PersonForm } from "@/components/person-form"
+import axios from "axios"
 
-interface Person {
-  id: string
-  name: string
-  rfid_code: string
-  finger_print_id: string
-  status: "authorized" | "flagged"
-}
 
 export default function DatabaseManagement() {
-  const [people, setPeople] = useState<Person[]>([])
+  const [people, setPeople] = useState([])
   const [showForm, setShowForm] = useState(false)
-  const [editingPerson, setEditingPerson] = useState<Person | null>(null)
+  const [editingPerson, setEditingPerson] = useState(null)
 
   // Mock data for people
   useEffect(() => {
-    const mockPeople: Person[] = [
-      { id: "1", name: "John Smith", rfid_code: "RF001234", finger_print_id: "FP001", status: "authorized" },
-      { id: "2", name: "Sarah Johnson", rfid_code: "RF001235", finger_print_id: "FP002", status: "authorized" },
-      { id: "3", name: "Mike Davis", rfid_code: "RF001236", finger_print_id: "FP003", status: "flagged" },
-      { id: "4", name: "Emily Brown", rfid_code: "RF001237", finger_print_id: "FP004", status: "authorized" },
-      { id: "5", name: "David Wilson", rfid_code: "RF001238", finger_print_id: "FP005", status: "authorized" },
-      { id: "6", name: "Lisa Anderson", rfid_code: "RF001239", finger_print_id: "FP006", status: "flagged" },
-    ]
-    setPeople(mockPeople)
+    const fetchPeople = async () => {
+      try {
+        const response = await axios.get("/api/authorization") // Adjust the endpoint as needed
+        setPeople(response.data)
+      } catch (error) {
+        console.error("Error fetching people:", error)
+      }
+    }
+    fetchPeople()
   }, [])
 
-  const handleAddPerson = (personData: Omit<Person, "id">) => {
-    const newPerson: Person = {
-      ...personData,
-      id: Date.now().toString(),
-    }
-    setPeople([...people, newPerson])
+  const handleAddPerson = async (personData) => {
+    console.log("Adding person:", personData)
+    const newPerson = await axios.post("/api/authorization", personData)
+    const response = await axios.get("/api/authorization") // Adjust the endpoint as needed
+    setPeople(response.data)
     setShowForm(false)
+    setEditingPerson(null)
   }
 
-  const handleEditPerson = (personData: Omit<Person, "id">) => {
-    if (editingPerson) {
-      setPeople(people.map((p) => (p.id === editingPerson.id ? { ...personData, id: editingPerson.id } : p)))
-      setEditingPerson(null)
-      setShowForm(false)
-    }
+  const handleEditPerson = async (personData: any) => {
+    console.log("Editing person:", personData)
+    const updatedPerson = await axios.put("/api/authorization", personData)
+    const response = await axios.get("/api/authorization") // Adjust the endpoint as needed
+    setPeople(response.data)
+    setShowForm(false)
+    setEditingPerson(null)
   }
 
-  const handleDeletePerson = (id: string) => {
-    if (confirm("Are you sure you want to delete this person?")) {
-      setPeople(people.filter((p) => p.id !== id))
-    }
+  const handleDeletePerson = async (id: string) => {
+    const deletedPerson = await axios.delete(`/api/authorization\?userId=${id}`)
+    const response = await axios.get("/api/authorization") // Adjust the endpoint as needed
+    setPeople(response.data)
   }
 
-  const startEdit = (person: Person) => {
+  const startEdit = (person) => {
     setEditingPerson(person)
     setShowForm(true)
   }
@@ -124,8 +119,8 @@ export default function DatabaseManagement() {
                     <TableCell>{person.rfid_code}</TableCell>
                     <TableCell>{person.finger_print_id}</TableCell>
                     <TableCell>
-                      <Badge variant={person.status === "authorized" ? "default" : "destructive"}>
-                        {person.status}
+                      <Badge variant={person.flagged ? "destructive" : "default"}>
+                        {person.flagged ? "Flagged" : "Authorized"}
                       </Badge>
                     </TableCell>
                     <TableCell>

@@ -6,28 +6,15 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch} from "@/components/ui/switch"
 
-interface Person {
-  id: string
-  name: string
-  rfid_code: string
-  finger_print_id: string
-  status: "authorized" | "flagged"
-}
 
-interface PersonFormProps {
-  person?: Person | null
-  onSubmit: (person: Omit<Person, "id">) => void
-  onCancel: () => void
-}
-
-export function PersonForm({ person, onSubmit, onCancel }: PersonFormProps) {
+export function PersonForm({ person, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
     name: "",
     rfid_code: "",
     finger_print_id: "",
-    status: "authorized" as "authorized" | "flagged",
+    flagged: false,
   })
 
   useEffect(() => {
@@ -36,7 +23,7 @@ export function PersonForm({ person, onSubmit, onCancel }: PersonFormProps) {
         name: person.name,
         rfid_code: person.rfid_code,
         finger_print_id: person.finger_print_id,
-        status: person.status,
+        flagged: person.flagged,
       })
     }
   }, [person])
@@ -48,11 +35,11 @@ export function PersonForm({ person, onSubmit, onCancel }: PersonFormProps) {
       name: "",
       rfid_code: "",
       finger_print_id: "",
-      status: "authorized",
+      flagged: false,
     })
   }
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -82,19 +69,13 @@ export function PersonForm({ person, onSubmit, onCancel }: PersonFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
-          <Select
-            value={formData.status}
-            onValueChange={(value: "authorized" | "flagged") => handleInputChange("status", value)}
+          <Label htmlFor="status">Flag Person</Label>
+          <Switch
+            checked={formData.flagged}
+            id="flagged"
+            onCheckedChange={(checked) => handleInputChange("flagged", checked)}
           >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="authorized">Authorized</SelectItem>
-              <SelectItem value="flagged">Flagged</SelectItem>
-            </SelectContent>
-          </Select>
+          </Switch>
         </div>
       </div>
       <div className="flex gap-2 pt-4">

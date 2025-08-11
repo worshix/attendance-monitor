@@ -75,3 +75,22 @@ export async function DELETE(request: NextRequest) {
     await prisma.$disconnect();
   }
 }
+
+//for creating a new authorization
+export async function POST(request: NextRequest) {
+  const prisma = new PrismaClient();
+  const data = await request.json();
+
+  try {
+    const newAuthorization = await prisma.authorization.create({
+      data,
+    });
+
+    return NextResponse.json(newAuthorization, { status: 201 });
+  } catch (error) {
+    console.error('Error creating authorization:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
+  }
+}

@@ -9,16 +9,24 @@ import { Database, RefreshCw } from "lucide-react"
 import axios from "axios"
 
 interface AttendanceRecord {
-  id: string
-  name: string
-  time: string
-  date: string
+  id: number
+  authorizationId:number
+  attendedAt:string
+  authorization:{
+    id:number
+    name: string
+    rfid_code:string
+    finger_print_id: string
+    flagged:boolean
+    createdAt:string
+    updatedAt:string
+  }
 }
 
 export default function AttendanceMonitor() {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([])
 
-  // Fetch attendance records from the API
+  // Fetch attendance records from the API using polling
   useEffect(() => {
     const fetchAttendanceRecords = async () => {
       try {
@@ -29,13 +37,16 @@ export default function AttendanceMonitor() {
         console.error("Error fetching attendance records:", error)
       }
     }
-
     fetchAttendanceRecords()
+    const interval = setInterval(fetchAttendanceRecords, 3000) // Poll every 3 seconds
+    return () => clearInterval(interval) // Cleanup on unmount
   }, [])
 
-  const refreshData = () => {
-    // In a real app, this would fetch fresh data from the server
-    console.log("Refreshing attendance data...")
+  const refreshData = async () => {
+    // In realApp this will clear all the data from the database, polling will be used to update
+    await axios.delete("/api/attendance")
+    const response = await axios.get("/api/attendance")
+    setAttendanceRecords(response.data)
   }
 
   return (
@@ -73,9 +84,9 @@ export default function AttendanceMonitor() {
               <TableBody>
                 {attendanceRecords.map((record) => (
                   <TableRow key={record.id}>
-                    <TableCell className="font-medium">{record.name}</TableCell>
-                    <TableCell>{record.time}</TableCell>
-                    <TableCell>{record.date}</TableCell>
+                    <TableCell className="font-medium">{record.authorization.name}</TableCell>
+                    <TableCell>{record.attendedAt.slice(11,-8)}</TableCell>
+                    <TableCell>{record.attendedAt.slice(0,-14)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
