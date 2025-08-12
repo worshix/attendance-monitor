@@ -47,8 +47,8 @@ export default function DatabaseManagement() {
     setEditingPerson(null)
   }
 
-  const handleDeletePerson = async (id: string) => {
-    const deletedPerson = await axios.delete(`/api/authorization\?userId=${id}`)
+  const handleDeletePerson = async (rfid_code: string) => {
+    const deletedPerson = await axios.delete(`/api/authorization\?rfid_code=${rfid_code}`)
     const response = await axios.get("/api/authorization") // Adjust the endpoint as needed
     setPeople(response.data)
   }
@@ -128,7 +128,7 @@ export default function DatabaseManagement() {
                         <Button size="sm" variant="outline" onClick={() => startEdit(person)}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline" onClick={() => handleDeletePerson(person.id)}>
+                        <Button size="sm" variant="outline" onClick={() => handleDeletePerson(person.rfid_code)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>

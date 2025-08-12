@@ -27,7 +27,7 @@ model Authorization {
 model Attendance {
   rfid_code       String        @id
   attendedAt      DateTime      @default(now())
-  authorization   Authorization @relation(fields: [rfid_code], references: [rfid_code])
+  authorization   Authorization @relation(fields: [rfid_code], references: [rfid_code], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("attendance")
 }

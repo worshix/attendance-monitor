@@ -8,12 +8,12 @@ import { NextResponse, NextRequest } from 'next/server';
 //if the user is not found, return a 404 error
 export async function GET(request: NextRequest) {
   const prisma = new PrismaClient();
-  const userId = request.nextUrl.searchParams.get('userId');
+  const rfid_code = request.nextUrl.searchParams.get('rfid_code');
 
   try {
-    if (userId) {
+    if (rfid_code) {
       const authorization = await prisma.authorization.findUnique({
-        where: { id: parseInt(userId) },
+        where: {rfid_code},
       });
 
       if (!authorization) {
@@ -36,11 +36,11 @@ export async function GET(request: NextRequest) {
 // for updating an authorization
 export async function PUT(request: NextRequest) {
   const prisma = new PrismaClient();
-  const { id, ...data } = await request.json();
+  const { rfid_code, ...data } = await request.json();
 
   try {
     const updatedAuthorization = await prisma.authorization.update({
-      where: { id: parseInt(id) },
+      where: { rfid_code },
       data,
     });
 
@@ -56,15 +56,15 @@ export async function PUT(request: NextRequest) {
 // for deleting an authorization
 export async function DELETE(request: NextRequest) {
   const prisma = new PrismaClient();
-  const userId = request.nextUrl.searchParams.get('userId');
+  const rfid_code = request.nextUrl.searchParams.get('rfid_code');
 
   try {
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    if (!rfid_code) {
+      return NextResponse.json({ error: 'RFID code is required' }, { status: 400 });
     }
 
     const deletedAuthorization = await prisma.authorization.delete({
-      where: { id: parseInt(userId) },
+      where: { rfid_code },
     });
 
     return NextResponse.json(deletedAuthorization);
