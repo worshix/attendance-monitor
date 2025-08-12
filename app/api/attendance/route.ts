@@ -36,3 +36,22 @@ export async function DELETE() {
         await prisma.$disconnect();
     }
 }
+
+// functioning to create a new attendance record in the database
+export async function POST(request: Request) {
+  const prisma = new PrismaClient();
+  try {
+    const { rfid_code } = await request.json();
+    const newAttendance = await prisma.attendance.create({
+      data: {
+        rfid_code,
+      },
+    });
+    return NextResponse.json(newAttendance, { status: 201 });
+  } catch (error) {
+    console.error("Error creating attendance record:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
+  }
+}

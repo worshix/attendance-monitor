@@ -114,7 +114,7 @@ export default function DatabaseManagement() {
               </TableHeader>
               <TableBody>
                 {people.map((person) => (
-                  <TableRow key={person.id}>
+                  <TableRow key={person.rfid_code}>
                     <TableCell className="font-medium">{person.name}</TableCell>
                     <TableCell>{person.rfid_code}</TableCell>
                     <TableCell>{person.finger_print_id}</TableCell>

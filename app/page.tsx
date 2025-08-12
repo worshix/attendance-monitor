@@ -83,7 +83,7 @@ export default function AttendanceMonitor() {
               </TableHeader>
               <TableBody>
                 {attendanceRecords.map((record) => (
-                  <TableRow key={record.id}>
+                  <TableRow key={record.rfid_code}>
                     <TableCell className="font-medium">{record.authorization.name}</TableCell>
                     <TableCell>{record.attendedAt.slice(11,-8)}</TableCell>
                     <TableCell>{record.attendedAt.slice(0,-14)}</TableCell>
