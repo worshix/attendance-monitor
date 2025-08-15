@@ -5,7 +5,7 @@ import { NextResponse, NextRequest } from 'next/server';
 export async function POST(request: NextRequest) {
     const prisma = new PrismaClient();
     const { rfid_code } = await request.json();
-
+    console.log(rfid_code);
     try {
         const authorization = await prisma.authorization.findUnique({
             where: { rfid_code },
