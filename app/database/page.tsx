@@ -8,13 +8,29 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Plus, Edit, Trash2 } from "lucide-react"
 import { PersonForm } from "@/components/person-form"
+import { LectureForm } from "@/components/lecture-form"
 import axios from "axios"
+
+interface Person {
+  rfid_code: string;
+  name: string;
+  finger_print_id: string;
+  flagged: boolean;
+}
+
+interface Lecture {
+  lecture_rfid_code: string;
+  course: string;
+}
 
 
 export default function DatabaseManagement() {
-  const [people, setPeople] = useState([])
-  const [showForm, setShowForm] = useState(false)
-  const [editingPerson, setEditingPerson] = useState(null)
+  const [people, setPeople] = useState<Person[]>([])
+  const [lectures, setLectures] = useState<Lecture[]>([])
+  const [showPersonForm, setShowPersonForm] = useState(false)
+  const [showLectureForm, setShowLectureForm] = useState(false)
+  const [editingPerson, setEditingPerson] = useState<Person | null>(null)
+  const [editingLecture, setEditingLecture] = useState<Lecture | null>(null)
 
   // Mock data for people
   useEffect(() => {
@@ -26,41 +42,84 @@ export default function DatabaseManagement() {
         console.error("Error fetching people:", error)
       }
     }
+    const fetchLectures = async () => {
+      try {
+        const response = await axios.get("/api/lectures") // Adjust the endpoint as needed
+        setLectures(response.data)
+      } catch (error) {
+        console.error("Error fetching lectures:", error)
+      }
+    }
     fetchPeople()
+    fetchLectures()
   }, [])
 
-  const handleAddPerson = async (personData) => {
+  const handleAddPerson = async (personData: Omit<Person, "rfid_code">) => {
     console.log("Adding person:", personData)
-    const newPerson = await axios.post("/api/authorization", personData)
+    await axios.post("/api/authorization", personData)
     const response = await axios.get("/api/authorization") // Adjust the endpoint as needed
     setPeople(response.data)
-    setShowForm(false)
+    setShowPersonForm(false)
     setEditingPerson(null)
   }
 
-  const handleEditPerson = async (personData: any) => {
+  const handleEditPerson = async (personData: Person) => {
     console.log("Editing person:", personData)
-    const updatedPerson = await axios.put("/api/authorization", personData)
+    await axios.put("/api/authorization", personData)
     const response = await axios.get("/api/authorization") // Adjust the endpoint as needed
     setPeople(response.data)
-    setShowForm(false)
+    setShowPersonForm(false)
     setEditingPerson(null)
   }
 
   const handleDeletePerson = async (rfid_code: string) => {
-    const deletedPerson = await axios.delete(`/api/authorization\?rfid_code=${rfid_code}`)
+    await axios.delete(`/api/authorization\?rfid_code=${rfid_code}`)
     const response = await axios.get("/api/authorization") // Adjust the endpoint as needed
     setPeople(response.data)
   }
 
-  const startEdit = (person) => {
+  const startEditPerson = (person: Person) => {
     setEditingPerson(person)
-    setShowForm(true)
+    setShowPersonForm(true)
   }
 
-  const cancelForm = () => {
-    setShowForm(false)
+  const cancelPersonForm = () => {
+    setShowPersonForm(false)
     setEditingPerson(null)
+  }
+
+  const handleAddLecture = async (lectureData: Omit<Lecture, "lecture_rfid_code">) => {
+    console.log("Adding lecture:", lectureData)
+    await axios.post("/api/lectures", lectureData)
+    const response = await axios.get("/api/lectures")
+    setLectures(response.data)
+    setShowLectureForm(false)
+    setEditingLecture(null)
+  }
+
+  const handleEditLecture = async (lectureData: Lecture) => {
+    console.log("Editing lecture:", lectureData)
+    await axios.put("/api/lectures", lectureData)
+    const response = await axios.get("/api/lectures")
+    setLectures(response.data)
+    setShowLectureForm(false)
+    setEditingLecture(null)
+  }
+
+  const handleDeleteLecture = async (lecture_rfid_code: string) => {
+    await axios.delete(`/api/lectures\?lecture_rfid_code=${lecture_rfid_code}`)
+    const response = await axios.get("/api/lectures")
+    setLectures(response.data)
+  }
+
+  const startEditLecture = (lecture: Lecture) => {
+    setEditingLecture(lecture)
+    setShowLectureForm(true)
+  }
+
+  const cancelLectureForm = () => {
+    setShowLectureForm(false)
+    setEditingLecture(null)
   }
 
   return (
@@ -76,13 +135,19 @@ export default function DatabaseManagement() {
             </Link>
             <h1 className="text-3xl font-bold text-gray-900">Database Management</h1>
           </div>
-          <Button onClick={() => setShowForm(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Person
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setShowPersonForm(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Person
+            </Button>
+            <Button onClick={() => setShowLectureForm(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Lecture
+            </Button>
+          </div>
         </div>
 
-        {showForm && (
+        {showPersonForm && (
           <Card className="mb-6">
             <CardHeader>
               <CardTitle>{editingPerson ? "Edit Person" : "Add New Person"}</CardTitle>
@@ -91,13 +156,28 @@ export default function DatabaseManagement() {
               <PersonForm
                 person={editingPerson}
                 onSubmit={editingPerson ? handleEditPerson : handleAddPerson}
-                onCancel={cancelForm}
+                onCancel={cancelPersonForm}
               />
             </CardContent>
           </Card>
         )}
 
-        <Card>
+        {showLectureForm && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>{editingLecture ? "Edit Lecture" : "Add New Lecture"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <LectureForm
+                lecture={editingLecture}
+                onSubmit={editingLecture ? handleEditLecture : handleAddLecture}
+                onCancel={cancelLectureForm}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        <Card className="mb-6">
           <CardHeader>
             <CardTitle>Authorized Personnel Database</CardTitle>
           </CardHeader>
@@ -125,7 +205,7 @@ export default function DatabaseManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline" onClick={() => startEdit(person)}>
+                        <Button size="sm" variant="outline" onClick={() => startEditPerson(person)}>
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button size="sm" variant="outline" onClick={() => handleDeletePerson(person.rfid_code)}>
@@ -138,6 +218,42 @@ export default function DatabaseManagement() {
               </TableBody>
             </Table>
             {people.length === 0 && <div className="text-center py-8 text-gray-500">No people in the database</div>}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Lectures Database</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Course</TableHead>
+                  <TableHead>Lecture RFID Code</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {lectures.map((lecture) => (
+                  <TableRow key={lecture.lecture_rfid_code}>
+                    <TableCell className="font-medium">{lecture.course}</TableCell>
+                    <TableCell>{lecture.lecture_rfid_code}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" onClick={() => startEditLecture(lecture)}>
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => handleDeleteLecture(lecture.lecture_rfid_code)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {lectures.length === 0 && <div className="text-center py-8 text-gray-500">No lectures in the database</div>}
           </CardContent>
         </Card>
       </div>
