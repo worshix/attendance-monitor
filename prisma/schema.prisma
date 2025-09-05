@@ -23,11 +23,23 @@ model Authorization {
   @@map("authorization")
 }
 
+model Lecture {
+  lecture_rfid_code String       @id @unique
+  course            String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  Attendance        Attendance[]
+
+  @@map("lectures")
+}
+
 // another table for the guys who have attended, should be linked to the authorization table
 model Attendance {
-  rfid_code       String        @id
-  attendedAt      DateTime      @default(now())
-  authorization   Authorization @relation(fields: [rfid_code], references: [rfid_code], onDelete: Cascade, onUpdate: Cascade)
+  rfid_code         String        @id
+  lecture_rfid_code String
+  attendedAt        DateTime      @default(now())
+  authorization     Authorization @relation(fields: [rfid_code], references: [rfid_code], onDelete: Cascade, onUpdate: Cascade)
+  lecture           Lecture       @relation(fields: [lecture_rfid_code], references: [lecture_rfid_code], onDelete: Cascade, onUpdate: Cascade)
 
   @@map("attendance")
 }
