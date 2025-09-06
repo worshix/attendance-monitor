@@ -8,8 +8,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch} from "@/components/ui/switch"
 
+interface Person {
+  rfid_code: string;
+  name: string;
+  finger_print_id: string;
+  flagged: boolean;
+}
 
-export function PersonForm({ person, onSubmit, onCancel }) {
+
+export function PersonForm({ person, onSubmit, onCancel } : { person: Person | null; onSubmit: (data: Omit<Person, "rfid_code">) => void; onCancel: () => void }) {
   const [formData, setFormData] = useState({
     name: "",
     rfid_code: "",
