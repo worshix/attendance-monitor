@@ -54,7 +54,7 @@ export default function DatabaseManagement() {
     fetchLectures()
   }, [])
 
-  const handleAddPerson = async (personData: Omit<Person, "rfid_code">) => {
+  const handleAddPerson = async (personData: Person) => {
     console.log("Adding person:", personData)
     await axios.post("/api/authorization", personData)
     const response = await axios.get("/api/authorization") // Adjust the endpoint as needed
@@ -88,7 +88,7 @@ export default function DatabaseManagement() {
     setEditingPerson(null)
   }
 
-  const handleAddLecture = async (lectureData: Omit<Lecture, "lecture_rfid_code">) => {
+  const handleAddLecture = async (lectureData: Lecture) => {
     console.log("Adding lecture:", lectureData)
     await axios.post("/api/lectures", lectureData)
     const response = await axios.get("/api/lectures")

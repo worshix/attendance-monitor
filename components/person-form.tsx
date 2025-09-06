@@ -16,7 +16,7 @@ interface Person {
 }
 
 
-export function PersonForm({ person, onSubmit, onCancel } : { person: Person | null; onSubmit: (data: Omit<Person, "rfid_code">) => void; onCancel: () => void }) {
+export function PersonForm({ person, onSubmit, onCancel }: { person: Person | null; onSubmit: (data: Person) => void; onCancel: () => void }) {
   const [formData, setFormData] = useState({
     name: "",
     rfid_code: "",
@@ -32,6 +32,13 @@ export function PersonForm({ person, onSubmit, onCancel } : { person: Person | n
         finger_print_id: person.finger_print_id,
         flagged: person.flagged,
       })
+    } else {
+        setFormData({
+            name: "",
+            rfid_code: "",
+            finger_print_id: "",
+            flagged: false,
+        })
     }
   }, [person])
 
@@ -46,7 +53,7 @@ export function PersonForm({ person, onSubmit, onCancel } : { person: Person | n
     })
   }
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof typeof formData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
