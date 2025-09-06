@@ -35,7 +35,8 @@ model Lecture {
 
 // another table for the guys who have attended, should be linked to the authorization table
 model Attendance {
-  rfid_code         String        @id
+  id                Int           @id @default(autoincrement())
+  rfid_code         String
   lecture_rfid_code String
   attendedAt        DateTime      @default(now())
   authorization     Authorization @relation(fields: [rfid_code], references: [rfid_code], onDelete: Cascade, onUpdate: Cascade)
